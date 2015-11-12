@@ -1,10 +1,13 @@
 package com.neklo.demo;
 
+import android.Manifest;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -16,6 +19,10 @@ import com.neklo.beacon.SmartStoreService;
 
 public class MainActivity extends AppCompatActivity {
 
+    private static final String TAG = "MainActivity";
+
+    private static final int PERMISSION_REQUEST_COARSE_LOCATION = 1;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -26,6 +33,29 @@ public class MainActivity extends AppCompatActivity {
         // Register receiver for action beacons
         IntentFilter filter = new IntentFilter(SmartStoreHelper.getBroadcastAction());
         registerReceiver(actionReceiver, filter);
+
+        // Force update beacons and companies from server, this is not necessary because we have autoupdate interval in library
+        SmartStoreHelper.forceUpdateData(this);
+
+        // Ask M permissions only if we target API 23 and launch on M+ device
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if (this.checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED){
+                requestPermissions(new String[]{Manifest.permission.ACCESS_COARSE_LOCATION}, PERMISSION_REQUEST_COARSE_LOCATION);
+            }
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
+        switch (requestCode) {
+            case PERMISSION_REQUEST_COARSE_LOCATION: {
+                if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    Log.d(TAG, "Coarse location permission granted");
+                } else {
+                    Log.d(TAG, "Functionality limited");
+                }
+            }
+        }
     }
 
     @Override
