@@ -1,4 +1,5 @@
 com.neklo.beacon
 com.neklo.beacon.api
 com.neklo.beacon.model
+com.neklo.beacon.stats
 com.neklo.beacon.utils

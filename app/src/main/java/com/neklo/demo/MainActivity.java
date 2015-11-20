@@ -16,6 +16,9 @@ import android.util.Log;
 
 import com.neklo.beacon.SmartStoreHelper;
 import com.neklo.beacon.SmartStoreService;
+import com.neklo.beacon.stats.SmartStoreEvents;
+import com.neklo.beacon.stats.StatsHelper;
+import com.neklo.beacon.stats.params.StatStateParams;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -92,6 +95,7 @@ public class MainActivity extends AppCompatActivity {
         super.onStart();
         // Disable notifications because we start activity and will handle it self
         SmartStoreHelper.setNotificationPosting(this, false);
+        StatsHelper.getInstance().postStat(SmartStoreEvents.APPLICATION_STATE, new StatStateParams(StatStateParams.STATE_ACTIVATED));
     }
 
     @Override
@@ -99,6 +103,7 @@ public class MainActivity extends AppCompatActivity {
         super.onStop();
         // Enable notifications again
         SmartStoreHelper.setNotificationPosting(this, true);
+        StatsHelper.getInstance().postStat(SmartStoreEvents.APPLICATION_STATE, new StatStateParams(StatStateParams.STATE_DEACTIVATED));
     }
 
     /**
