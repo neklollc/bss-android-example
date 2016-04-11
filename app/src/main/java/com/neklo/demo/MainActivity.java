@@ -105,7 +105,7 @@ public class MainActivity extends AppCompatActivity {
         super.onStart();
         // Disable notifications because we start activity and will handle it self
         SmartStoreHelper.setNotificationPosting(this, false);
-        StatsHelper.getInstance().postStat(SmartStoreEvents.APPLICATION_STATE, new StatStateParams(StatStateParams.STATE_ACTIVATED));
+        SmartStoreHelper.setApplicationState(this, true);
     }
 
     @Override
@@ -113,7 +113,7 @@ public class MainActivity extends AppCompatActivity {
         super.onStop();
         // Enable notifications again
         SmartStoreHelper.setNotificationPosting(this, true);
-        StatsHelper.getInstance().postStat(SmartStoreEvents.APPLICATION_STATE, new StatStateParams(StatStateParams.STATE_DEACTIVATED));
+        SmartStoreHelper.setApplicationState(this, false);
     }
 
     /**
