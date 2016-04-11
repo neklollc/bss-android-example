@@ -20,6 +20,7 @@ import com.neklo.beacon.SmartStoreHelper;
 import com.neklo.beacon.SmartStoreService;
 import com.neklo.beacon.stats.SmartStoreEvents;
 import com.neklo.beacon.stats.StatsHelper;
+import com.neklo.beacon.stats.params.StatCompanyParams;
 import com.neklo.beacon.stats.params.StatStateParams;
 import com.neklo.demo.gcm.RegistrationIntentService;
 
@@ -79,11 +80,13 @@ public class MainActivity extends AppCompatActivity {
      * Check intent on message
      */
     private boolean checkMessage() {
-        if (getIntent().hasExtra(SmartStoreService.INTENT_FIELD_TITLE)){
+        if (getIntent().hasExtra(SmartStoreService.INTENT_FIELD_TITLE)) {
             showPopup(
                     getIntent().getStringExtra(SmartStoreService.INTENT_FIELD_TITLE),
-                    getIntent().getStringExtra(SmartStoreService.INTENT_FIELD_TEXT),
-                    getIntent().getStringExtra(SmartStoreService.INTENT_FIELD_LINK));
+                    getIntent().getStringExtra(SmartStoreService.INTENT_FIELD_SHORT_DESCRIPTION),
+                    getIntent().getStringExtra(SmartStoreService.INTENT_FIELD_LINK),
+                    getIntent().getStringExtra(SmartStoreService.INTENT_FIELD_FULL_DESCRIPTION),
+                    getIntent().getStringExtra(SmartStoreService.INTENT_FIELD_ID));
             return true;
         }
         return false;
@@ -118,15 +121,16 @@ public class MainActivity extends AppCompatActivity {
      * @param title
      * @param text
      */
-    private void showPopup(final String title, final String text, final String link) {
+    private void showPopup(final String title, final String shortDescription, final String link, final String fullDescription, final String id) {
         new AlertDialog.Builder(this)
                 .setTitle(title)
-                .setMessage(Html.fromHtml(text))
+                .setMessage(Html.fromHtml(shortDescription))
                 .setNegativeButton("Cancel", null)
                 .setPositiveButton("More", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-//                        showFragment(NotificationFragment.getInstance(title, text, link), true);
+                        StatsHelper.getInstance().postStat(SmartStoreEvents.HANDLE_CAMPAIGN, new StatCompanyParams(id, StatCompanyParams.TYPE_CONTROLLER));
+//                        showFragment(NotificationFragment.getInstance(title, fullDescription, link), true);
                     }
                 })
                 .create()
@@ -140,14 +144,16 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void onReceive(Context context, Intent intent) {
             Log.d("ActionReceiver", "received beacon " + intent.getStringExtra(SmartStoreService.INTENT_FIELD_TITLE));
+            String id = intent.getStringExtra(SmartStoreService.INTENT_FIELD_ID);
             String title = intent.getStringExtra(SmartStoreService.INTENT_FIELD_TITLE);
-            String text = intent.getStringExtra(SmartStoreService.INTENT_FIELD_TEXT);
+            String shortDescription = intent.getStringExtra(SmartStoreService.INTENT_FIELD_SHORT_DESCRIPTION);
+            String fullDescription = intent.getStringExtra(SmartStoreService.INTENT_FIELD_FULL_DESCRIPTION);
             String link = intent.getStringExtra(SmartStoreService.INTENT_FIELD_LINK);
-            if (title != null && text != null){
-                showPopup(title, text, link);
-            }else{
+            if (title != null && shortDescription != null) {
+                showPopup(title, shortDescription, link, fullDescription, id);
+            } else {
                 String params = intent.getStringExtra(SmartStoreService.INTENT_FIELD_DATA);
-                if (params != null){
+                if (params != null) {
                     // TODO actions
                 }
             }

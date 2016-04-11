@@ -29,6 +29,8 @@ import android.util.Log;
 import com.google.android.gms.gcm.GcmListenerService;
 import java.lang.Override;
 import java.lang.String;
+
+import com.neklo.beacon.SmartStoreHelper;
 import com.neklo.demo.MainActivity;
 import com.neklo.demo.R;
 
@@ -46,32 +48,43 @@ public class MyGcmListenerService extends GcmListenerService {
     // [START receive_message]
     @Override
     public void onMessageReceived(String from, Bundle data) {
-        String title = data.getString("gcm.notification.title");
-        String message = data.getString("gcm.notification.body");
-        Log.d(TAG, "From: " + from);
-        Log.d(TAG, "Title: " + title);
-        Log.d(TAG, "Message: " + message);
-
-        if (from.startsWith("/topics/")) {
-            // message received from some topic.
-        } else {
-            // normal downstream message.
+        boolean isForceUpdate = false;
+        try {
+            isForceUpdate = data.getString("content-available").equalsIgnoreCase("1")
+                    && data.getString("collapse_key").equalsIgnoreCase("bss");
+        } catch (Exception e) {
+            e.printStackTrace();
         }
+        if (isForceUpdate) {
+            SmartStoreHelper.forceUpdateData(getApplicationContext());
+        } else {
+            String title = data.getString("gcm.notification.title");
+            String message = data.getString("gcm.notification.body");
+            Log.d(TAG, "From: " + from);
+            Log.d(TAG, "Title: " + title);
+            Log.d(TAG, "Message: " + message);
 
-        // [START_EXCLUDE]
-        /**
-         * Production applications would usually process the message here.
-         * Eg: - Syncing with server.
-         *     - Store message in local database.
-         *     - Update UI.
-         */
+            if (from.startsWith("/topics/")) {
+                // message received from some topic.
+            } else {
+                // normal downstream message.
+            }
 
-        /**
-         * In some cases it may be useful to show a notification indicating to the user
-         * that a message was received.
-         */
-        sendNotification(title, message);
-        // [END_EXCLUDE]
+            // [START_EXCLUDE]
+            /**
+             * Production applications would usually process the message here.
+             * Eg: - Syncing with server.
+             *     - Store message in local database.
+             *     - Update UI.
+             */
+
+            /**
+             * In some cases it may be useful to show a notification indicating to the user
+             * that a message was received.
+             */
+            sendNotification(title, message);
+            // [END_EXCLUDE]
+        }
     }
     // [END receive_message]
 

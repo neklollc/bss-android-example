@@ -1,2 +1,2 @@
 configurations.create("default")
-artifacts.add("default", file('smartstore-release.aar'))
+artifacts.add("default", file('beaconlibrary-release.aar'))
