@@ -22,6 +22,7 @@ public class DemoApp extends Application {
                 MainActivity.class,
                 R.mipmap.ic_launcher,
                 UPDATE_INTERVAL_DEFAULT,
-                PUSH_TIMEOUT_DEFAULT);
+                PUSH_TIMEOUT_DEFAULT,
+                true);
     }
 }

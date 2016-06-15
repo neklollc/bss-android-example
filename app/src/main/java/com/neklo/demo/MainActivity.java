@@ -9,6 +9,7 @@ import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Html;
@@ -86,7 +87,8 @@ public class MainActivity extends AppCompatActivity {
                     getIntent().getStringExtra(SmartStoreService.INTENT_FIELD_SHORT_DESCRIPTION),
                     getIntent().getStringExtra(SmartStoreService.INTENT_FIELD_LINK),
                     getIntent().getStringExtra(SmartStoreService.INTENT_FIELD_FULL_DESCRIPTION),
-                    getIntent().getStringExtra(SmartStoreService.INTENT_FIELD_ID));
+                    getIntent().getStringExtra(SmartStoreService.INTENT_FIELD_ID),
+                    getIntent().getLongExtra(SmartStoreService.INTENT_FIELD_DELAY, 0));
             return true;
         }
         return false;
@@ -121,20 +123,25 @@ public class MainActivity extends AppCompatActivity {
      * @param title
      * @param text
      */
-    private void showPopup(final String title, final String shortDescription, final String link, final String fullDescription, final String id) {
-        new AlertDialog.Builder(this)
-                .setTitle(title)
-                .setMessage(Html.fromHtml(shortDescription))
-                .setNegativeButton("Cancel", null)
-                .setPositiveButton("More", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        StatsHelper.getInstance().postStat(SmartStoreEvents.HANDLE_CAMPAIGN, new StatCompanyParams(id, StatCompanyParams.TYPE_CONTROLLER));
+    private void showPopup(final String title, final String shortDescription, final String link, final String fullDescription, final String id, final long delay) {
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                new AlertDialog.Builder(MainActivity.this)
+                        .setTitle(title)
+                        .setMessage(Html.fromHtml(shortDescription))
+                        .setNegativeButton("Cancel", null)
+                        .setPositiveButton("More", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                StatsHelper.getInstance().postStat(SmartStoreEvents.HANDLE_CAMPAIGN, new StatCompanyParams(id, StatCompanyParams.TYPE_CONTROLLER));
 //                        showFragment(NotificationFragment.getInstance(title, fullDescription, link), true);
-                    }
-                })
-                .create()
-                .show();
+                            }
+                        })
+                        .create()
+                        .show();
+            }
+        }, delay * 1000);
     }
 
     /**
@@ -149,8 +156,11 @@ public class MainActivity extends AppCompatActivity {
             String shortDescription = intent.getStringExtra(SmartStoreService.INTENT_FIELD_SHORT_DESCRIPTION);
             String fullDescription = intent.getStringExtra(SmartStoreService.INTENT_FIELD_FULL_DESCRIPTION);
             String link = intent.getStringExtra(SmartStoreService.INTENT_FIELD_LINK);
+            long delay = intent.getLongExtra(SmartStoreService.INTENT_FIELD_DELAY, 0);
+            String screen = intent.getStringExtra(SmartStoreService.INTENT_FIELD_SCREEN);
+            Log.d("BSS broadcast", "screen: " + screen);
             if (title != null && shortDescription != null) {
-                showPopup(title, shortDescription, link, fullDescription, id);
+                showPopup(title, shortDescription, link, fullDescription, id, delay);
             } else {
                 String params = intent.getStringExtra(SmartStoreService.INTENT_FIELD_DATA);
                 if (params != null) {
