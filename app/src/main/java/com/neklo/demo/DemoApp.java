@@ -24,5 +24,6 @@ public class DemoApp extends Application {
                 UPDATE_INTERVAL_DEFAULT,
                 PUSH_TIMEOUT_DEFAULT,
                 true);
+        SmartStoreHelper.setLocationEnable(this, false);
     }
 }
